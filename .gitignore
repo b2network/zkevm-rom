@@ -1,4 +1,4 @@
-package-lock.json
+# package-lock.json
 
 # Logs
 logs
@@ -75,3 +75,5 @@ tools/parallel-tests
 
 
 .vscode/launch.json
+
+test-tmp/

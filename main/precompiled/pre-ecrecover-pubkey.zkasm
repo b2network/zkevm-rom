@@ -1,0 +1,79 @@
+VAR GLOBAL tmpVarXEcrPub
+VAR GLOBAL tmpVarYEcrPub
+
+funcECRECOVERPubKey:
+    ; Move balances if value > 0 just before executing the contract CALL
+    $ => B                              :MLOAD(txValue)
+    0 => A
+    zkPC+2 => RR
+    $                                   :LT, JMPC(moveBalances)
+
+    GAS - %ECRECOVER_GAS => GAS         :JMPN(outOfGas) ; gas static = 3000
+    ; read data stored in calldata
+    ; read hash [32 bytes]
+    32                                  :MSTORE(readXFromCalldataLength)
+    0 => E                              :MSTORE(readXFromCalldataOffset), CALL(readFromCalldataOffset); in: [readXFromCalldataOffset: offset value, readXFromCalldataLength: length value], out: [readXFromCalldataResult: result value]
+    $ => A                              :MLOAD(readXFromCalldataResult)
+    ; read v [32 bytes]
+    E + 32 => E                         :MSTORE(readXFromCalldataOffset), CALL(readFromCalldataOffset); in: [readXFromCalldataOffset: offset value, readXFromCalldataLength: length value], out: [readXFromCalldataResult: result value]
+    $ => D                              :MLOAD(readXFromCalldataResult)
+    ; read r [32 bytes]
+    E + 32 => E                         :MSTORE(readXFromCalldataOffset), CALL(readFromCalldataOffset); in: [readXFromCalldataOffset: offset value, readXFromCalldataLength: length value], out: [readXFromCalldataResult: result value]
+    $ => B                              :MLOAD(readXFromCalldataResult)
+    ; read s [32 bytes]
+    E + 32 => E                         :MSTORE(readXFromCalldataOffset), CALL(readFromCalldataOffset); in: [readXFromCalldataOffset: offset value, readXFromCalldataLength: length value], out: [readXFromCalldataResult: result value]
+    $ => C                              :MLOAD(readXFromCalldataResult), CALL(ecrecover_pubkey_precompiled) ; in: [A: hash, B: r, C: s, D: v], out: [A: result_ecrecover_x, B: result_ecrecover_y, C: result_code]
+    C                                   :JMPNZ(endECRECOVERPubKeyFail)
+
+    ; write ecrecover data into memory
+    0 => E
+    A                                   :MSTORE(bytesToStore), CALL(MSTORE32); in: [bytesToStore, E: offset] out: [E: new offset]
+    B                                   :MSTORE(bytesToStore), CALL(MSTORE32); in: [bytesToStore, E: offset] out: [E: new offset]
+    A                                   :MSTORE(tmpVarXEcrPub)
+    B                                   :MSTORE(tmpVarYEcrPub)
+
+    ; prepare return data
+    0                                   :MSTORE(retDataOffset)
+    64                                  :MSTORE(retDataLength)
+    $ => A                              :MLOAD(originCTX), JMPZ(handleGas)
+    ; set retDataCTX
+    $ => B                              :MLOAD(currentCTX)
+    A => CTX
+    B                                   :MSTORE(retDataCTX)
+    B => CTX
+
+    ; write result ecrecover into previous context memory
+    $ => C                              :MLOAD(retCallLength), JMPZ(preEndECRECOVERPubKey)
+    $ => E                              :MLOAD(retCallOffset)
+
+    ; ecrecover_pubkey result (X, Y) is in tmpVarXEcrPub, tmpVarYEcrPub
+    $ => A                              :MLOAD(tmpVarXEcrPub)
+    A                                   :MSTORE(bytesToStore)
+    $ => CTX                            :MLOAD(originCTX)
+    C - 32                              :JMPN(continueRecoverX)
+                                        :CALL(MSTORE32)
+    C - 32 => C
+    C - 32                              :JMPN(continueRecoverY)
+    32 => C
+
+continueRecoverY:
+    $ => A                              :MLOAD(tmpVarXEcrPub)
+    A                                   :MSTORE(bytesToStore)
+                                        :CALL(MSTOREX)  ; in: [bytesToStore, E: offset, C: length] out: [E: new offset]
+                                        :JMP(endECRECOVERPubKey)
+
+continueRecoverX:
+                                        :CALL(MSTOREX)  ; in: [bytesToStore, E: offset, C: length] out: [E: new offset]
+                                        :JMP(endECRECOVERPubKey)
+
+endECRECOVERPubKeyFail:
+    $ => A                              :MLOAD(originCTX), JMPZ(handleGas)
+    A => CTX
+    0                                   :MSTORE(retDataCTX)
+    CTX                                 :MSTORE(currentCTX), JMP(preEnd)
+
+preEndECRECOVERPubKey:
+    $ => CTX                            :MLOAD(originCTX)
+
+endECRECOVERPubKey:
+    CTX                                 :MSTORE(currentCTX), JMP(preEnd)

@@ -15,6 +15,7 @@ start:
                 ; :JMP(repeat_ecrecover_test)
                 :JMP(edge_cases)
 
+INCLUDE "../main/ecrecover/ec-ops.zkasm"
 INCLUDE "../main/ecrecover/ecrecover.zkasm"
 
 repeat_ecrecover_test:

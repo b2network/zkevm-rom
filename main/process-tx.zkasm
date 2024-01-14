@@ -1,6 +1,8 @@
 INCLUDE "map-opcodes.zkasm"
 INCLUDE "precompiled/selector.zkasm"
+INCLUDE "ecrecover/ec-ops.zkasm"
 INCLUDE "ecrecover/ecrecover.zkasm"
+INCLUDE "ecrecover/ecrecover-pubkey.zkasm"
 INCLUDE "touched.zkasm"
 INCLUDE "2-exp.zkasm"
 
@@ -217,7 +219,7 @@ txType:
         ; Check zero address since zero address is not a precompiled contract
         0 => B
         $                               :EQ, JMPC(callContract)
-        10 => B
+        11 => B
         $                               :LT,JMPC(selectorPrecompiled, callContract)
 
 ;;;;;;;;;;;;;;;;;;

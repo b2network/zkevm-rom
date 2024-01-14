@@ -18,8 +18,6 @@ VAR GLOBAL ecrecover_RR
 VAR GLOBAL ecrecover_v_parity
 VAR GLOBAL ecrecover_s_upperlimit
 
-INCLUDE "constEc.zkasm"
-
 ; ERROR CODES (B)
 ; 0 - no error
 ; 1 - r is zero (0)
@@ -268,13 +266,3 @@ ecrecover_error:
 ecrecover_end:
         $ => RR     :MLOAD(ecrecover_RR)
         :RETURN
-
-INCLUDE "addFpEc.zkasm"
-INCLUDE "sqFpEc.zkasm"
-INCLUDE "mulFpEc.zkasm"
-INCLUDE "mulFnEc.zkasm"
-INCLUDE "invFpEc.zkasm"
-INCLUDE "invFnEc.zkasm"
-INCLUDE "sqrtFpEc.zkasm"
-INCLUDE "checkSqrtFpEc.zkasm"
-INCLUDE "mulPointEc.zkasm"

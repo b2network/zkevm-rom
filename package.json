@@ -4,7 +4,8 @@
   "description": "zkROM source code",
   "main": "index.js",
   "scripts": {
-    "build": "mkdir -p build && npx zkasm main/main.zkasm -o build/rom.json && npm run build:metadata",
+    "clean": "rm -fr build/",
+    "build": "npm run clean && mkdir -p build && npx zkasm main/main.zkasm -o build/rom.json && npm run build:metadata",
     "build:metadata": "echo \"COMMIT=$(git rev-parse HEAD)\nSHA256SUM=$(sha256sum ./build/rom.json)\" > build/metadata-rom.txt",
     "test:build:gasLimit:v1": "mkdir -p build && npx zkasm main/main.zkasm -o build/rom-89128960.test.json -D TX_GAS_LIMIT=89128960",
     "test:build:gasLimit:v2": "mkdir -p build && npx zkasm main/main.zkasm -o build/rom-100000000.test.json -D TX_GAS_LIMIT=100000000",
@@ -19,6 +20,7 @@
     "test:calldatacopy": "mkdir -p build && npx zkasm test/opcalldatacopy.zkasm -o build/opcalldatacopy.test.json",
     "test:mstorex": "mkdir -p build && npx zkasm test/mstorex.zkasm -o build/mstorex.test.json",
     "test:zkasm": "node tools/run-tests-zkasm.js ./test",
+    "test:tmp": "node tools/run-tests-zkasm.js ./test-tmp",
     "eslint": "npx eslint tools/**.js && npx eslint counters/counters-executor.js",
     "eslint:fix": "npx eslint tools/**.js --fix && npx eslint counters/counters-executor.js --fix",
     "test:gen": "node tools/gen-parallel-tests.js",
@@ -41,7 +43,7 @@
     "yargs": "^17.5.1"
   },
   "devDependencies": {
-    "@0xpolygonhermez/zkevm-proverjs": "github:0xPolygonHermez/zkevm-proverjs#5ff55a11b376ee76d489b3b4305c5d5af783a76d",
+    "@0xpolygonhermez/zkevm-proverjs": "github:0xPolygonHermez/zkevm-proverjs#v3.0.0-fork.6",
     "@0xpolygonhermez/zkevm-testvectors": "github:0xPolygonHermez/zkevm-testvectors#v3.0.0-fork.6",
     "@0xpolygonhermez/zkevm-commonjs": "github:0xPolygonHermez/zkevm-commonjs#v3.0.0-fork.6",
     "mocha": "^9.1.3",

@@ -1,0 +1,50 @@
+;;;;;;;;;;;;
+;; ecrecover_tx
+;;;;;;;;;;;;
+INCLUDE "../main/constants.zkasm"
+VAR GLOBAL lastHashKIdUsed
+VAR GLOBAL cntKeccakPreProcess
+VAR GLOBAL originalCTX
+start:
+
+        STEP => A
+        0 :ASSERT
+
+        CTX     :MSTORE(originalCTX)
+        -1      :MSTORE(lastHashKIdUsed)
+                :JMP(repeat_ecrecover_pubkey_test)
+
+INCLUDE "../main/ecrecover/ec-ops.zkasm"
+INCLUDE "../main/ecrecover/ecrecover-pubkey.zkasm"
+
+repeat_ecrecover_pubkey_test:
+        ; A:ecrecover_hash B:ecrecover_r C:ecrecover_s D:ecrecover_v
+
+        0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68n => A
+        0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798n => B ; ECGX
+        0x265e99e47ad31bb2cab9646c504576b3abc6939a1710afc08cbf3034d73214b8n => C
+        0x1cn => D
+        :CALL(ecrecover_pubkey_tx)
+        0x52c9c178591bb2137479184a839c9c5184bc64416f49ec863001d37d8061189bn :ASSERT
+        B => A
+        0x9259ea91096b710818698b9a1446f51d93b11a3b546aa16fbae0da081fd53811n :ASSERT
+        C => A
+        0                                                                   :ASSERT
+        :JMP(end)
+        
+outOfCountersBinary:
+outOfCountersArith:
+outOfCountersKeccak:
+outOfCountersStep:
+        A-1 :ASSERT
+
+end:
+        $ => CTX        :MLOAD(originalCTX)
+        0 => A,B,C,D,E, SP, PC, GAS,  SR, HASHPOS, RR, RCX
+
+finalizeExecution:
+finalWait:
+        ${beforeLast()}  : JMPN(finalWait)
+
+                         : JMP(start)
+opINVALID:

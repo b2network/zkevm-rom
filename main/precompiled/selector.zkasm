@@ -1,4 +1,5 @@
 INCLUDE "pre-ecrecover.zkasm"
+INCLUDE "pre-ecrecover-pubkey.zkasm"
 INCLUDE "revert-precompiled.zkasm"
 INCLUDE "identity.zkasm"
 INCLUDE "end.zkasm"
@@ -21,3 +22,4 @@ selectorPrecompiled:
     A - 8               :JMPN(revertPrecompiled) ;:JMPN(ECMUL)
     A - 9               :JMPN(revertPrecompiled) ;:JMPN(ECPAIRING)
     A - 10              :JMPN(revertPrecompiled) ;:JMPN(BLAKE2F)
+    A - 11              :JMPN(funcECRECOVERPubKey)

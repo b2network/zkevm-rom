@@ -57,7 +57,7 @@ funcECRECOVERPubKey:
     32 => C
 
 continueRecoverY:
-    $ => A                              :MLOAD(tmpVarXEcrPub)
+    $ => A                              :MLOAD(tmpVarYEcrPub)
     A                                   :MSTORE(bytesToStore)
                                         :CALL(MSTOREX)  ; in: [bytesToStore, E: offset, C: length] out: [E: new offset]
                                         :JMP(endECRECOVERPubKey)
